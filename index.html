@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chessing psychiatryk</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: gray;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="for-link">
+      <label for="ch-link">kurwa link</label>
+      <input type="text" name="ch-link" id="ch-link" />
+      <button type="submit" id="chesso-submitto">kurwa analizka</button>
+    </div>
+    <script>
+      document.getElementById('chesso-submitto').addEventListener('click', function () {
+        let content = document.getElementById('ch-link').value;
+        console.log(content)
+        fetch('/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': "text/plain",
+          },
+          body: content,
+        });
+      });
+    </script>
+  </body>
+</html>
