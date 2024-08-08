@@ -4,22 +4,52 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 
-const { findGame }  = require('./Compress.js');
+const { findGame, newestGames } = require('./Compress.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.text());
+//app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.post('/submit', async (req, res) => {
-  const content  = await req.body;
+  const content = await req.body;
   let pgn = await findGame(content);
 
   startBot(pgn);
+});
+
+app.post('/get-games', (req, res) => {
+  const username = req.body;
+  console.log(username);
+
+  const games = [
+    {
+      White: 'lesze007',
+      Black: 'macneruchy',
+      UTCDate: new Date(Date.UTC(2024, 7, 3, 12, 40, 48)),
+      WhiteElo: '589',
+      BlackElo: '465',
+      TimeControl: '1/259200',
+      Termination: 'lesze007 won by resignation',
+      Link: 'https://www.chess.com/game/daily/686081797',
+    },
+    {
+      White: 'lesze007',
+      Black: 'macneruchy',
+      UTCDate: new Date(Date.UTC(2024, 6, 31, 13, 18, 30)),
+      WhiteElo: '465',
+      BlackElo: '589',
+      TimeControl: '1/259200',
+      Termination: 'macneruchy won by checkmate',
+      Link: 'https://www.chess.com/game/daily/684986803',
+    },
+  ];
+  res.json(games);
 });
 
 async function startBot(pgn) {
@@ -80,7 +110,6 @@ async function startBot(pgn) {
       fs.writeFileSync(sessionFile, JSON.stringify({ cookies, localStorage }, null, 2));
 
       await new Promise((resolve) => setTimeout(resolve, 200));
-
     }
 
     await page.waitForSelector('#form3-pgn');
@@ -91,7 +120,6 @@ async function startBot(pgn) {
 
     await page.click('label[for="form3-analyse"]');
     await page.click('.submit.button.text');
-
   } catch (error) {
     console.error(error);
   }
