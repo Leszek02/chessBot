@@ -20,7 +20,7 @@ const gameTemplate = {
             this.BlackElo = BlackElo,
             this.TimeControl = TimeControl,
             this.Termination = Termination,
-            this.Link = Link}}
+            this.Link = Link}};
 
 
 async function findGame(gameString) {
@@ -39,19 +39,22 @@ async function findGame(gameString) {
   return game;
 }
 
+function padMonth(month) {
+  let monthString = month.toString();
+  return monthString.length > 1 ? monthString : "0" + monthString;
+}
+
 
 async function downloadGames() {
   let curTime = new Date();
   let year = curTime.getFullYear();
   let month = curTime.getMonth() + 1;
-  api = `https://api.chess.com/pub/player/${process.env.CHESSCOM_USERNAME}/games/${year}/${month}/pgn`;
+  const ms = Date.now();
+  api = `https://api.chess.com/pub/player/${process.env.CHESSCOM_USERNAME}/games/${year}/${padMonth(month)}`;
   let response = await fetch(api, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/x-chess-pgn',
-    },
+    method: 'GET'
   });
-  const pgn = await response.text();
+  const pgn = (await response.json()).games;
   return pgn;
 }
 
@@ -71,34 +74,40 @@ function convertToDate(dateString, timeString) {
 
 async function newestGames(newestNumber){
     gameList = [];
-    await downloadGames().then((pgn) => {
-        const dataLines = pgn.split('\n');
-        for (let i = 22; i < dataLines.length; i = i + 25) {
+    await downloadGames().then((response) => {
+      for (let iter = 0; iter < response.length; iter++) {
+        const dataLines = response[iter].pgn.split('\n');
             const newGame = Object.create(gameTemplate);
-            
             newGame.gameConstructor( 
-                extract(dataLines[i - 18]),
-                extract(dataLines[i - 17]),
-                convertToDate(extract(dataLines[i - 11]), extract(dataLines[i - 10])),
-                extract(dataLines[i - 9]),
-                extract(dataLines[i - 8]),
-                extract(dataLines[i - 7]),
-                extract(dataLines[i - 6]),
-                extract(dataLines[i - 2])
-            )
-            if (i == 22) {
-                //console.log("%o", newGame);
-            }
+                extract(dataLines[4]),
+                extract(dataLines[5]),
+                convertToDate(extract(dataLines[11]), extract(dataLines[12])),
+                extract(dataLines[13]),
+                extract(dataLines[14]),
+                extract(dataLines[15]),
+                extract(dataLines[16]),
+                extract(dataLines[20]))
             gameList.push(newGame);
-        }
+      }
+
     })
     gameList.sort((a, b) => new Date(b.UTCDate) - new Date(a.UTCDate));
     return gameList.slice(0, newestNumber);
 }
 
 
-// newestGames(5).then((gameList) => {
+// newestGames(1).then((gameList) => {
 //     console.log(gameList);
+// })
+
+// downloadGames().then((list) => {
+//   fs.writeFile('output.txt', list, (err) => {
+//     if (err) {
+//         console.error('Error writing to file', err);
+//     } else {
+//         console.log('File has been written successfully');
+//     }
+// });
 // })
 
 module.exports = { findGame };
