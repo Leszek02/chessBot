@@ -14,23 +14,58 @@
     </style>
   </head>
   <body>
+    <div id="for-user">
+      <label for="username">kurwa user</label>
+      <input type="text" name="username" id="username" />
+      <button type="submit" id="userro-submitto">kurwa user</button>
+    </div>
     <div id="for-link">
       <label for="ch-link">kurwa link</label>
       <input type="text" name="ch-link" id="ch-link" />
       <button type="submit" id="chesso-submitto">kurwa analizka</button>
     </div>
     <script>
+      function sendUsername(username) {
+        //const username = localStorage.getItem('username');
+        console.log(username);
+        if (username) {
+          fetch('/get-games', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain',
+            },
+            body: username,
+          })
+            .then((response) => response.json())
+            .then((response) => console.log(response))
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        }
+      }
+
       document.getElementById('chesso-submitto').addEventListener('click', function () {
         let content = document.getElementById('ch-link').value;
-        console.log(content)
         fetch('/submit', {
           method: 'POST',
           headers: {
-            'Content-Type': "text/plain",
+            'Content-Type': 'text/plain',
           },
           body: content,
         });
       });
+
+      document.getElementById('userro-submitto').addEventListener('click', function () {
+        const username = document.getElementById('username').value;
+        localStorage.setItem('username', username);
+        alert('Username zapisened!');
+        sendUsername(username);
+      });
+
+      const username = localStorage.getItem('username');
+      if (username) {
+        sendUsername(username);
+      }
     </script>
   </body>
 </html>

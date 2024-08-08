@@ -22,7 +22,6 @@ const gameTemplate = {
             this.Termination = Termination,
             this.Link = Link}};
 
-
 async function findGame(gameString) {
   game = '';
   await downloadGames().then((pgn) => {
@@ -44,12 +43,10 @@ function padMonth(month) {
   return monthString.length > 1 ? monthString : "0" + monthString;
 }
 
-
 async function downloadGames() {
   let curTime = new Date();
   let year = curTime.getFullYear();
   let month = curTime.getMonth() + 1;
-  const ms = Date.now();
   api = `https://api.chess.com/pub/player/${process.env.CHESSCOM_USERNAME}/games/${year}/${padMonth(month)}`;
   let response = await fetch(api, {
     method: 'GET'
@@ -58,12 +55,10 @@ async function downloadGames() {
   return pgn;
 }
 
-
 function extract(str) {
-    const match = str.match(/"([^"]*)"/);
-    return match ? match[1] : null;
+  const match = str.match(/"([^"]*)"/);
+  return match ? match[1] : null;
 }
-
 
 function convertToDate(dateString, timeString) {
   const [year, month, day] = dateString.split('.').map(Number);
@@ -93,7 +88,7 @@ async function newestGames(newestNumber){
     })
     gameList.sort((a, b) => new Date(b.UTCDate) - new Date(a.UTCDate));
     return gameList.slice(0, newestNumber);
-}
+  }
 
 
 // newestGames(1).then((gameList) => {
@@ -110,4 +105,4 @@ async function newestGames(newestNumber){
 // });
 // })
 
-module.exports = { findGame };
+module.exports = { findGame, newestGames }
