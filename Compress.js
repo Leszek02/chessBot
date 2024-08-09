@@ -22,13 +22,14 @@ const gameTemplate = {
             this.Termination = Termination,
             this.Link = Link}};
 
+
 async function findGame(gameString) {
   game = '';
-  await downloadGames().then((pgn) => {
-    const dataLines = pgn.split('\n');
-    for (let i = 20; i < dataLines.length; i = i + 25) {
-      if (dataLines[i].startsWith(`[Link "${gameString}`)) {
-        for (let j = i - 20; j < i + 3; j++) {
+  await downloadGames().then((response) => {
+    for (let iter = 0; iter < response.length; iter++) {
+      const dataLines = response[iter].pgn.split('\n');
+      if (dataLines[20].startsWith(`[Link "${gameString}`)) {
+        for (let j = 0; j < dataLines.length; j++) {
           game += dataLines[j] + '\n';
         }
         break;
@@ -38,10 +39,12 @@ async function findGame(gameString) {
   return game;
 }
 
+
 function padMonth(month) {
   let monthString = month.toString();
   return monthString.length > 1 ? monthString : "0" + monthString;
 }
+
 
 async function downloadGames() {
   let curTime = new Date();
@@ -55,10 +58,12 @@ async function downloadGames() {
   return pgn;
 }
 
+
 function extract(str) {
   const match = str.match(/"([^"]*)"/);
   return match ? match[1] : null;
 }
+
 
 function convertToDate(dateString, timeString) {
   const [year, month, day] = dateString.split('.').map(Number);
@@ -91,9 +96,9 @@ async function newestGames(newestNumber){
   }
 
 
-// newestGames(1).then((gameList) => {
-//     console.log(gameList);
-// })
+newestGames(1).then((gameList) => {
+    console.log(gameList);
+})
 
 // downloadGames().then((list) => {
 //   fs.writeFile('output.txt', list, (err) => {
@@ -103,6 +108,10 @@ async function newestGames(newestNumber){
 //         console.log('File has been written successfully');
 //     }
 // });
+// })
+
+// findGame("https://www.chess.com/game/live/116932834533").then((game) => {
+//   console.log(game);
 // })
 
 module.exports = { findGame, newestGames }
