@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.text());
-//app.use(bodyParser.json());
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -24,8 +24,10 @@ app.post('/submit', async (req, res) => {
 });
 
 app.post('/get-games', (req, res) => {
-  const username = req.body;
+  const { username, gamesNum } = req.body;
+
   console.log(username);
+  console.log(gamesNum);
 
   const games = [
     {

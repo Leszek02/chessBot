@@ -5,67 +5,203 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chessing psychiatryk</title>
     <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
       body {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: 25px;
+        background-color: rgb(142, 154, 175);
+        width: 100vw;
+        height: 100vh;
+        font-size: 18px;
+      }
+      #recent-games {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+      .game {
+        display: flex;
+        width: 80%;
+        border: 1px solid black;
+        color: rgb(253, 253, 255);
+      }
+      .players {
+        width: 25%;
+        background-color: rgb(3, 63, 99);
+      }
+      .game-single-info {
+        padding-block: 25px;
+        text-align: center;
+      }
+      .game-single-info:nth-child(2n) {
+        border-top: 1px solid black;
+      }
+      .time {
+        width: 25%;
+        background-color: #3a2256;
+      }
+      .result {
+        width: 50%;
+        /* background-color: #84c318; */
+        /* background-color: #d00000; */
+        background-color: #65532f;
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: gray;
+      }
+
+      button {
+        background-color: #6da34d;
+        padding: 15px;
+        border-radius: 15px 15px;
+        min-width: 169px;
+        font-size: 18px;
+      }
+      input {
+        background-color: #f5b841;
+        border: none;
+        border-radius: 15px 15px;
+        height: 36px;
+        padding-block: 5px;
+      }
+      input:focus {
+        outline: 0;
+        border: 0;
+      }
+      .form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+      #forms {
+        margin-top: 25px;
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+      }
+      label {
+        color: red;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 2em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 2px;
+      }
+      #games-num {
+        min-width: none;
+        margin-top: 25px;
       }
     </style>
   </head>
   <body>
-    <div id="for-user">
-      <label for="username">kurwa user</label>
-      <input type="text" name="username" id="username" />
-      <button type="submit" id="userro-submitto">kurwa user</button>
+    <div id="forms">
+      <div class="form">
+        <label for="username">kurwa user</label>
+        <input type="text" name="username" id="username" />
+        <button type="submit" id="userro-submitto">zakurw usera</button>
+      </div>
+      <div class="form">
+        <label for="ch-link">kurwa link</label>
+        <input type="text" name="ch-link" id="ch-link" />
+        <button type="submit" id="chesso-submitto">zakurw analizke</button>
+      </div>
     </div>
-    <div id="for-link">
-      <label for="ch-link">kurwa link</label>
-      <input type="text" name="ch-link" id="ch-link" />
-      <button type="submit" id="chesso-submitto">kurwa analizka</button>
+
+    <div class="form">
+      <input type="number" name="games-num" id="games-num" />
+      <button type="submit" id="numero-submitto">
+        zakurw liczbe<br />
+        gierek
+      </button>
+    </div>
+    <div id="recent-games">
+      <div class="game">
+        <div class="players">
+          <div class="game-single-info">nick elo1</div>
+          <div class="game-single-info">nick elo2</div>
+        </div>
+        <div class="time">
+          <div class="game-single-info">datadata</div>
+          <div class="game-single-info">180+2</div>
+        </div>
+        <div class="result">epic vicotry royal</div>
+      </div>
     </div>
     <script>
-      function sendUsername(username) {
+      function showGames(games) {
+        games.forEach((game) => {});
+      }
+      function sendUsername(username, gamesNum) {
         //const username = localStorage.getItem('username');
-        console.log(username);
+        //console.log(username);
         if (username) {
           fetch('/get-games', {
             method: 'POST',
             headers: {
-              'Content-Type': 'text/plain',
+              'Content-Type': 'application/json',
             },
-            body: username,
+            body: JSON.stringify({ username, gamesNum }),
           })
             .then((response) => response.json())
             .then((response) => console.log(response))
             .catch((error) => {
-              console.error('Error:', error);
+              alert('Error:', error);
             });
+        }
+      }
+
+      let username = localStorage.getItem('username');
+      let gamesNum = localStorage.getItem('games-number');
+      if (username && gamesNum) {
+        document.getElementById('username').value = username;
+        document.getElementById('games-num').value = gamesNum;
+        sendUsername(username, gamesNum);
+      } else {
+        localStorage.setItem('games-number', 5);
+        document.getElementById('games-num').value = 5;
+        gamesNum = 5;
+        if (username) {
+          document.getElementById('username').value = username;
+          sendUsername(username, gamesNum);
         }
       }
 
       document.getElementById('chesso-submitto').addEventListener('click', function () {
         let content = document.getElementById('ch-link').value;
-        fetch('/submit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain',
-          },
-          body: content,
-        });
+        if (content) {
+          fetch('/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain',
+            },
+            body: content,
+          }).catch((error) => {
+            alert(error);
+          });
+        } else {
+          alert('linka dobrego daj kurwiu');
+        }
       });
 
       document.getElementById('userro-submitto').addEventListener('click', function () {
         const username = document.getElementById('username').value;
-        localStorage.setItem('username', username);
-        alert('Username zapisened!');
-        sendUsername(username);
+        if (username) {
+          localStorage.setItem('username', username);
+          alert('Username zapisened!');
+          sendUsername(username, gamesNum);
+        } else {
+          alert('dawaj usera kurwiu');
+        }
       });
-
-      const username = localStorage.getItem('username');
-      if (username) {
-        sendUsername(username);
-      }
     </script>
   </body>
 </html>
