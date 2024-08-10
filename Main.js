@@ -12,45 +12,28 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.text());
 app.use(bodyParser.json());
 
+// Serve static files from the "assets" directory
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.post('/submit', async (req, res) => {
-  const content = await req.body;
-  let pgn = await findGame(content);
+  const { content, username } = await req.body;
+  let pgn = await findGame(content, username);
 
   startBot(pgn);
 });
 
-app.post('/get-games', (req, res) => {
+app.post('/get-games', async (req, res) => {
   const { username, gamesNum } = req.body;
 
   console.log(username);
   console.log(gamesNum);
 
-  const games = [
-    {
-      White: 'lesze007',
-      Black: 'macneruchy',
-      UTCDate: new Date(Date.UTC(2024, 7, 3, 12, 40, 48)),
-      WhiteElo: '589',
-      BlackElo: '465',
-      TimeControl: '1/259200',
-      Termination: 'lesze007 won by resignation',
-      Link: 'https://www.chess.com/game/daily/686081797',
-    },
-    {
-      White: 'lesze007',
-      Black: 'macneruchy',
-      UTCDate: new Date(Date.UTC(2024, 6, 31, 13, 18, 30)),
-      WhiteElo: '465',
-      BlackElo: '589',
-      TimeControl: '1/259200',
-      Termination: 'macneruchy won by checkmate',
-      Link: 'https://www.chess.com/game/daily/684986803',
-    },
-  ];
+  const games = await newestGames(gamesNum, username);
+
   res.json(games);
 });
 

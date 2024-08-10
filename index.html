@@ -19,6 +19,7 @@
         width: 100vw;
         height: 100vh;
         font-size: 18px;
+        overflow-x: hidden;
       }
       #recent-games {
         display: flex;
@@ -32,6 +33,7 @@
         width: 80%;
         border: 1px solid black;
         color: rgb(253, 253, 255);
+        cursor: pointer;
       }
       .players {
         width: 25%;
@@ -57,13 +59,19 @@
         justify-content: center;
         align-items: center;
       }
-
+      .result.win {
+        background-color: #84c318;
+      }
+      .result.loss {
+        background-color: #d00000;
+      }
       button {
         background-color: #6da34d;
         padding: 15px;
         border-radius: 15px 15px;
         min-width: 169px;
         font-size: 18px;
+        cursor: pointer;
       }
       input {
         background-color: #f5b841;
@@ -100,6 +108,10 @@
         min-width: none;
         margin-top: 25px;
       }
+      .pawn-icon {
+        height: 22px;
+        width: auto;
+      }
     </style>
   </head>
   <body>
@@ -123,22 +135,69 @@
         gierek
       </button>
     </div>
-    <div id="recent-games">
-      <div class="game">
-        <div class="players">
-          <div class="game-single-info">nick elo1</div>
-          <div class="game-single-info">nick elo2</div>
+    <div id="recent-games"></div>
+    <script>
+      const recentGames = document.getElementById('recent-games');
+
+      function getAnalysis(content, username) {
+        fetch('/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content, username }),
+        }).catch((error) => {
+          alert(error);
+        });
+      }
+
+      function resolveTermination(termination, gamer) {
+        if (termination.includes(`${gamer} won`)) {
+          return 'win';
+        } else if (termination.includes('won')) {
+          return 'loss';
+        } else {
+          return 'drawn';
+        }
+      }
+      function showGames(games, gamer) {
+        recentGames.innerHTML = '';
+
+        const options = {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        };
+
+        games.forEach((game) => {
+          const gameDiv = document.createElement('div');
+          gameDiv.className = 'game';
+
+          const gameDate = new Date(game.UTCDate);
+
+          gameDiv.innerHTML = `
+          <div class="players">
+          <div class="game-single-info"><img class="pawn-icon" src="./assets/white-pawn.svg" />${game.White} (${
+            game.WhiteElo
+          })</div>
+          <div class="game-single-info"><img class="pawn-icon" src="./assets/black-pawn.svg" />${game.Black} (${
+            game.BlackElo
+          })</div>
         </div>
         <div class="time">
-          <div class="game-single-info">datadata</div>
-          <div class="game-single-info">180+2</div>
+          <div class="game-single-info">${gameDate.toLocaleString('pl-PL', options).replace(',', '')}</div>
+          <div class="game-single-info">${game.TimeControl}</div>
         </div>
-        <div class="result">epic vicotry royal</div>
-      </div>
-    </div>
-    <script>
-      function showGames(games) {
-        games.forEach((game) => {});
+        <div class="result ${resolveTermination(game.Termination, gamer)}">${game.Termination}</div>
+          `;
+
+          gameDiv.addEventListener('click', () => getAnalysis(game.Link, gamer));
+          recentGames.appendChild(gameDiv);
+        });
       }
       function sendUsername(username, gamesNum) {
         //const username = localStorage.getItem('username');
@@ -152,9 +211,9 @@
             body: JSON.stringify({ username, gamesNum }),
           })
             .then((response) => response.json())
-            .then((response) => console.log(response))
+            .then((response) => showGames(response, username))
             .catch((error) => {
-              alert('Error:', error);
+              alert('Errorddd:', error);
             });
         }
       }
@@ -177,18 +236,10 @@
 
       document.getElementById('chesso-submitto').addEventListener('click', function () {
         let content = document.getElementById('ch-link').value;
-        if (content) {
-          fetch('/submit', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'text/plain',
-            },
-            body: content,
-          }).catch((error) => {
-            alert(error);
-          });
+        if (content && username) {
+          getAnalysis(content, username);
         } else {
-          alert('linka dobrego daj kurwiu');
+          alert('linka dobrego daj kurwiu albo usera');
         }
       });
 
@@ -200,6 +251,17 @@
           sendUsername(username, gamesNum);
         } else {
           alert('dawaj usera kurwiu');
+        }
+      });
+
+      document.getElementById('numero-submitto').addEventListener('click', function () {
+        const numero = document.getElementById('games-num').value;
+        if (numero) {
+          localStorage.setItem('games-number', numero);
+          alert('Numerino zapisened!');
+          sendUsername(username, numero);
+        } else {
+          alert('dawaj numera kurwiu');
         }
       });
     </script>
