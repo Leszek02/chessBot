@@ -43,6 +43,9 @@
         padding-block: 25px;
         text-align: center;
       }
+      .game-single-info.game-single-dates {
+        padding-block: 28px;
+      }
       .game-single-info:nth-child(2n) {
         border-top: 1px solid black;
       }
@@ -189,8 +192,10 @@
           })</div>
         </div>
         <div class="time">
-          <div class="game-single-info">${gameDate.toLocaleString('pl-PL', options).replace(',', '')}</div>
-          <div class="game-single-info">${game.TimeControl}</div>
+          <div class="game-single-info game-single-dates">${gameDate
+            .toLocaleString('pl-PL', options)
+            .replace(',', '')}</div>
+          <div class="game-single-info game-single-dates">${game.TimeControl}</div>
         </div>
         <div class="result ${resolveTermination(game.Termination, gamer)}">${game.Termination}</div>
           `;
